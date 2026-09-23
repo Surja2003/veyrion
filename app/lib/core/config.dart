@@ -9,8 +9,7 @@ class AppConfig {
   ///   flutter run --dart-define=DARM_API_BASE=https://your-space.hf.space
   static const String defaultApiBase = String.fromEnvironment(
     'DARM_API_BASE',
-    // Android emulator reaches host machine via 10.0.2.2; web/desktop use localhost.
-    defaultValue: kIsWeb ? 'http://localhost:8000' : 'http://10.0.2.2:8000',
+    defaultValue: 'https://veyrion-ut8u.onrender.com',
   );
 
   static const String appName = 'Veyrion';
