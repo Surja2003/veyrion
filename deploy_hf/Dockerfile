@@ -1,8 +1,9 @@
-# DARM inference service - Hugging Face Space (Docker SDK, CPU).
+# Veyrion inference service - Hugging Face Space (Docker SDK, CPU).
 FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
+    PIP_ROOT_USER_ACTION=ignore \
     DARM_WEIGHTS_DIR=/app/weights \
     HF_HOME=/tmp/hf \
     TORCH_HOME=/tmp/torch
