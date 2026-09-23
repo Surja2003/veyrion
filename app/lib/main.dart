@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,18 +13,28 @@ import 'ui/screens/login_screen.dart';
 import 'ui/screens/splash_screen.dart';
 import 'ui/screens/terms_screen.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await EasyLocalization.ensureInitialized();
-  runApp(
-    EasyLocalization(
-      supportedLocales: const [Locale('en'), Locale('hi'), Locale('bn')],
-      path: 'assets/translations',
-      fallbackLocale: const Locale('en'),
-      useOnlyLangCode: true,
-      child: const DarmApp(),
-    ),
-  );
+void main() {
+  // Guard the whole startup so a single init error can never force-close the
+  // app silently — we log it and still boot into a usable state.
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    try {
+      await EasyLocalization.ensureInitialized();
+    } catch (e, s) {
+      debugPrint('EasyLocalization init failed (continuing): $e\n$s');
+    }
+    runApp(
+      EasyLocalization(
+        supportedLocales: const [Locale('en'), Locale('hi'), Locale('bn')],
+        path: 'assets/translations',
+        fallbackLocale: const Locale('en'),
+        useOnlyLangCode: true,
+        child: const DarmApp(),
+      ),
+    );
+  }, (error, stack) {
+    debugPrint('Uncaught zone error: $error\n$stack');
+  });
 }
 
 class DarmApp extends StatelessWidget {

@@ -42,9 +42,33 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.1
+  flutter_native_splash: ^2.4.3
 
 flutter:
   uses-material-design: true
   assets:
     - assets/
     - assets/translations/
+
+# App launcher icon — the Veyrion logo (deep-black adaptive background).
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/veyrion_logo.png"
+  adaptive_icon_background: "#000000"
+  adaptive_icon_foreground: "assets/veyrion_logo.png"
+  min_sdk_android: 21
+
+# Native launch screen (shown before Flutter boots) — logo on deep black.
+flutter_native_splash:
+  color: "#000000"
+  color_dark: "#000000"
+  image: "assets/veyrion_logo.png"
+  android_12:
+    color: "#000000"
+    color_dark: "#000000"
+    image: "assets/veyrion_logo.png"
+  android: true
+  ios: false
+  web: false

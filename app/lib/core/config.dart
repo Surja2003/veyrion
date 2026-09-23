@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 /// Runtime configuration. The API base URL is user-configurable in Settings
 /// and persisted; this holds the compile-time defaults.
 class AppConfig {
