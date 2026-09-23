@@ -1,9 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "buildCommand": "echo 'Serving prebuilt Flutter web from app/build/web'",
+  "buildCommand": "rm -rf web && cp -r app/build/web web",
   "installCommand": "echo 'no install needed'",
-  "outputDirectory": "app/build/web",
+  "outputDirectory": "web",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
