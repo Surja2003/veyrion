@@ -1,4 +1,4 @@
-package com.darm.darm_scanner
+package com.veyrion.app
 
 import io.flutter.embedding.android.FlutterActivity
 

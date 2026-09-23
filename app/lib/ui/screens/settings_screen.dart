@@ -18,33 +18,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  late final TextEditingController _url;
-  bool _checking = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _url = TextEditingController(text: context.read<AppController>().baseUrl);
-  }
-
-  @override
-  void dispose() {
-    _url.dispose();
-    super.dispose();
-  }
-
-  Future<void> _save() async {
-    setState(() => _checking = true);
-    await context.read<AppController>().setBaseUrl(_url.text.trim());
-    if (!mounted) return;
-    setState(() => _checking = false);
-    final online = context.read<AppController>().backendOnline;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(
-          online ? 'Connected to server' : 'Saved, but server not reachable'),
-    ));
-  }
-
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppController>();
@@ -133,56 +106,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 12),
 
             Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Expanded(
-                            child: SectionHeader('Inference server')),
-                        _StatusDot(online: app.backendOnline),
-                      ],
-                    ),
-                    TextField(
-                      controller: _url,
-                      decoration: const InputDecoration(
-                        labelText: 'API base URL',
-                        hintText: 'https://your-space.hf.space',
-                        prefixIcon: Icon(Icons.link),
-                      ),
-                      keyboardType: TextInputType.url,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      app.backendOnline
-                          ? 'Online${app.mockMode ? ' · mock mode (no weights loaded)' : ' · weights loaded'}'
-                          : 'Not reachable. Start the backend, or set the correct URL.',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: app.backendOnline
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.error),
-                    ),
-                    const SizedBox(height: 12),
-                    FilledButton.icon(
-                      onPressed: _checking ? null : _save,
-                      icon: _checking
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white))
-                          : const Icon(Icons.save_outlined),
-                      label: const Text('Save & test connection'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            Card(
               child: Column(
                 children: [
                   ListTile(
@@ -251,7 +174,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     if (widget.embedded) return SafeArea(child: body);
     return Scaffold(
-        appBar: AppBar(title: const Text('Server settings')), body: body);
+        appBar: AppBar(title: Text('settings.title'.tr())), body: body);
   }
 }
 
@@ -293,25 +216,3 @@ class _ThemeChip extends StatelessWidget {
   }
 }
 
-class _StatusDot extends StatelessWidget {
-  const _StatusDot({required this.online});
-  final bool online;
-  @override
-  Widget build(BuildContext context) {
-    final color = online
-        ? Theme.of(context).colorScheme.primary
-        : Theme.of(context).colorScheme.error;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-            width: 10,
-            height: 10,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
-        const SizedBox(width: 6),
-        Text(online ? 'Online' : 'Offline',
-            style: TextStyle(color: color, fontSize: 12)),
-      ],
-    );
-  }
-}

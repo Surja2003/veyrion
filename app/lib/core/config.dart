@@ -7,7 +7,7 @@ class AppConfig {
   ///   flutter run --dart-define=DARM_API_BASE=https://your-space.hf.space
   static const String defaultApiBase = String.fromEnvironment(
     'DARM_API_BASE',
-    defaultValue: 'https://veyrion-ut8u.onrender.com',
+    defaultValue: 'http://137.23.47.128',
   );
 
   static const String appName = 'Veyrion';
