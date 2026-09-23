@@ -35,7 +35,7 @@ class AppController extends ChangeNotifier {
   List<Prediction> history = [];
   List<ChatSession> chats = [];
 
-  late DarmApi _api;
+  late DarmApi _api = DarmApi(AppConfig.defaultApiBase);
   DarmApi get api => _api;
 
   bool get isClinic => role == 'clinic';
