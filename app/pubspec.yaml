@@ -1,0 +1,50 @@
+name: darm_scanner
+description: "DARM - Dermoscopic AI Risk Monitor. Skin lesion decision-support client for the multi-backbone fusion model."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # Networking
+  http: ^1.2.2
+  http_parser: ^4.0.2   # for MediaType on multipart uploads
+
+  # State management
+  provider: ^6.1.2
+
+  # Local persistence (cross-platform: android/web/windows)
+  shared_preferences: ^2.3.3
+
+  # Image capture / selection
+  camera: ^0.11.0+2         # in-app live DARM camera (mobile) — medical-grade capture
+  image_picker: ^1.1.2      # gallery (mobile, web) + camera fallback
+  file_selector: ^1.0.3     # file picking (desktop, web fallback)
+
+  # Cross-platform cropping ("fine-tune" step)
+  crop_your_image: ^2.0.0
+
+  # Pure-Dart image processing (brightness/contrast/sharpen/resize)
+  image: ^4.3.0
+
+  # Formatting
+  intl: 0.20.2
+
+  # Internationalisation (English / Hindi / Bengali) with live in-app switching
+  easy_localization: ^3.0.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - assets/translations/

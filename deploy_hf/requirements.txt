@@ -1,0 +1,16 @@
+# --- API layer (always required) ---
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+PyJWT==2.10.1
+pydantic==2.10.4
+numpy==2.2.1
+Pillow==11.1.0
+httpx==0.28.1          # DARM assistant -> Google Gemini REST call
+
+# --- Real inference (optional until you add weights) ---
+# The app runs in MOCK mode without these. Install for real predictions.
+# Backbones are all torchvision.models (no timm needed).
+# CPU wheels shown; use the CUDA build that matches your server for GPU.
+torch==2.5.1
+torchvision==0.20.1

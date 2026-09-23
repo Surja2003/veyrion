@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+*.pth
+*.pt
+weights/*.pth
+weights/*.pt
+!weights/README.md
+.env

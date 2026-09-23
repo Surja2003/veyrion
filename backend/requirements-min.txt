@@ -1,0 +1,9 @@
+# Minimal deps to run the API in MOCK mode (no torch / no real inference).
+# Use this for quick local UI development, then switch to requirements.txt.
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+PyJWT==2.10.1
+pydantic==2.10.4
+numpy==2.2.1
+Pillow==11.1.0
