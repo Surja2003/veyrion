@@ -109,7 +109,9 @@
     "noResult": "No result",
     "plainLanguage": "In plain language",
     "clinicalNote": "Clinical note",
-    "forYourDoctor": "For your doctor"
+    "forYourDoctor": "For your doctor",
+    "unreliableTitle": "This may not be a clear skin-lesion photo",
+    "unreliableBody": "The model is very unsure about this image — it doesn't clearly match any skin-lesion type, which usually means the photo isn't a close, well-lit shot of a single spot. Please don't rely on the result below. Retake with the lesion filling the frame, or check with a clinician."
   },
   "chat": {
     "title": "DARM Assistant",
@@ -151,5 +153,26 @@
     "short": "Decision-support tool — not a medical diagnosis. Always consult a qualified clinician.",
     "long": "DARM is an AI screening aid trained on the HAM10000 dataset. It is NOT a medical device and has not been clinically validated. Its results can be wrong — in particular it correctly identifies only about 69% of true melanomas, so it must never be used to rule out skin cancer. Use it to help decide whether to see a dermatologist, not as a substitute for one.",
     "reassurance": "Take a breath. This is a screening estimate from a computer model, not a diagnosis. Whatever it shows, the sensible next step is calm and simple: if anything looks concerning, book a dermatologist. Most skin spots are harmless, and even the serious ones are usually very treatable when found early."
+  },
+  "learn": {
+    "title": "Learn",
+    "abcdeTitle": "The ABCDE self-check",
+    "abcdeIntro": "A simple way to decide when to get a mole checked, from dermatology guidance:",
+    "abcdeA": "A — Asymmetry", "abcdeAd": "One half does not match the other.",
+    "abcdeB": "B — Border", "abcdeBd": "Edges are ragged, notched, or blurred.",
+    "abcdeC": "C — Colour", "abcdeCd": "More than one colour, or uneven shades.",
+    "abcdeD": "D — Diameter", "abcdeDd": "Larger than ~6 mm (a pencil eraser).",
+    "abcdeE": "E — Evolving", "abcdeEd": "Changing in size, shape, colour, or symptoms.",
+    "modelTitle": "About the model",
+    "modelIntroPatient": "Veyrion compares your photo against five AI vision models and combines their views with details like age and body site. It was trained on HAM10000 — over 10,000 real skin images labelled by dermatologists.",
+    "modelIntroClinic": "Veyrion is a five-backbone feature-fusion network (Swin-Tiny, ConvNeXt-Base, EfficientNet-B4, DenseNet-201, and a multi-scale ResNet-34) combined with patient metadata, trained on HAM10000 with lesion-level grouped validation.",
+    "statAccuracy": "Overall accuracy",
+    "statMacroF1": "Balanced score (macro-F1)",
+    "statMelRecall": "Melanoma catch rate",
+    "statDataset": "Tested on",
+    "datasetShort": "HAM10000 — 2,025 held-out images",
+    "typesTitle": "The 7 lesion types",
+    "sourceTitle": "Source & credits",
+    "sourceBody": "Based on \"Multi-Backbone Feature Fusion for Multi-Class Skin Lesion Classification\" (V. Vaibhav & N. Das). Dataset: HAM10000 (Tschandl et al., 2018)."
   }
 }

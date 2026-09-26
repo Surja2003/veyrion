@@ -235,6 +235,9 @@ MODEL_CARD = {
 # --------------------------------------------------------------------------- #
 JWT_SECRET = os.getenv("DARM_JWT_SECRET", "change-me-in-production-darm-secret")
 JWT_ALGORITHM = "HS256"
-JWT_EXPIRE_HOURS = 12
+# 30 days: demo logins shouldn't expire mid-session (users were being kicked to
+# re-login after a couple of hours). For production, use short-lived access
+# tokens + a refresh-token flow instead.
+JWT_EXPIRE_HOURS = 24 * 30
 
 CORS_ORIGINS = os.getenv("DARM_CORS_ORIGINS", "*").split(",")

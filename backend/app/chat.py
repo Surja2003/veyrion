@@ -50,6 +50,12 @@ def _build_system_prompt(context: Optional[dict], lang: str, role: str) -> str:
     reply_lang = LANG_NAMES.get(lang, "English")
 
     grounding = [
+        f"LANGUAGE — THIS IS YOUR #1 RULE, ABOVE EVERYTHING ELSE: Write your ENTIRE reply in "
+        f"{reply_lang}. Every single sentence, word and phrase must be in {reply_lang}. Do NOT "
+        f"reply in English unless {reply_lang} is literally English — even when the user's "
+        f"question is written in English or in another language, you must still answer in "
+        f"{reply_lang}. If you catch yourself writing English, stop and rewrite it in {reply_lang}.",
+        "",
         "You are the Veyrion Assistant, a helpful, careful explainer inside the Veyrion "
         "(Dermoscopic AI Risk Monitor) skin-lesion screening app.",
         "",
@@ -88,7 +94,7 @@ def _build_system_prompt(context: Optional[dict], lang: str, role: str) -> str:
     grounding += [
         "",
         "HOW TO ANSWER — read this carefully:",
-        f"- Reply in {reply_lang}.",
+        f"- Write the whole answer in {reply_lang} (this repeats the #1 rule above — it matters).",
         "- FIRST, understand what THIS person is actually asking, and answer THAT exact "
         "question directly in your first sentence. Do not open with a generic definition "
         "or a restatement of the result — they can already see the numbers.",
@@ -133,7 +139,9 @@ async def answer(
     for m in history[-10:]:  # keep the last few turns for context
         r = "model" if m.get("role") == "assistant" else "user"
         contents.append({"role": r, "parts": [{"text": str(m.get("text", ""))}]})
-    contents.append({"role": "user", "parts": [{"text": message}]})
+    reply_lang = LANG_NAMES.get(lang, "English")
+    user_text = message if reply_lang == "English" else f"{message}\n\n[Reply only in {reply_lang}.]"
+    contents.append({"role": "user", "parts": [{"text": user_text}]})
 
     payload = {
         "system_instruction": {

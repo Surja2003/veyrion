@@ -51,6 +51,12 @@ class ResultScreen extends StatelessWidget {
                 if (pred.mock) const _MockWarning(),
                 if (pred.mock) const SizedBox(height: 12),
 
+                // When the model is near-uniform / very unsure, the image is
+                // probably not a clear single-lesion photo (e.g. a random object).
+                // Warn prominently so users/clinics don't trust a bogus number.
+                if (_looksUnreliable(pred)) const _UnreliableBanner(),
+                if (_looksUnreliable(pred)) const SizedBox(height: 12),
+
                 _HeadlineCard(pred: pred, image: scan.workingImage),
                 const SizedBox(height: 16),
 
@@ -117,6 +123,52 @@ class ResultScreen extends StatelessWidget {
 }
 
 // --------------------------------------------------------------------------- //
+
+/// Heuristic: the probabilities are spread almost evenly across all 7 classes and
+/// the top pick is weak — the model doesn't recognise a lesion here, which is what
+/// a non-dermoscopic / random photo produces. Better to warn than to pretend.
+bool _looksUnreliable(Prediction pred) {
+  final c = pred.confidence;
+  return c.topProbability < 0.32 && c.entropyNormalised > 0.85;
+}
+
+class _UnreliableBanner extends StatelessWidget {
+  const _UnreliableBanner();
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: c.errorContainer,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: c.error.withValues(alpha: 0.5)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.image_not_supported_outlined, color: c.onErrorContainer),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('result.unreliableTitle'.tr(),
+                    style: TextStyle(
+                        color: c.onErrorContainer, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                Text('result.unreliableBody'.tr(),
+                    style: TextStyle(
+                        color: c.onErrorContainer, height: 1.35, fontSize: 13)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _MockWarning extends StatelessWidget {
   const _MockWarning();
   @override

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,7 +22,7 @@ class AboutScreen extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.all(20),
             children: [
-              Text('Learn',
+              Text('learn.title'.tr(),
                   style: Theme.of(context)
                       .textTheme
                       .headlineSmall
@@ -32,7 +33,7 @@ class AboutScreen extends StatelessWidget {
               _ModelCard(app: app),
               const SizedBox(height: 16),
               if (classes.isNotEmpty) ...[
-                const SectionHeader('The 7 lesion types'),
+                SectionHeader('learn.typesTitle'.tr()),
                 ...classes.map((c) => _ClassTile(
                       title: c.name,
                       common: c.commonName,
@@ -59,12 +60,12 @@ class _ABCDECard extends StatelessWidget {
   const _ABCDECard();
   @override
   Widget build(BuildContext context) {
-    final items = {
-      'A — Asymmetry': 'One half does not match the other.',
-      'B — Border': 'Edges are ragged, notched, or blurred.',
-      'C — Colour': 'More than one colour, or uneven shades.',
-      'D — Diameter': 'Larger than ~6 mm (a pencil eraser).',
-      'E — Evolving': 'Changing in size, shape, colour, or symptoms.',
+    final items = <String, String>{
+      'learn.abcdeA'.tr(): 'learn.abcdeAd'.tr(),
+      'learn.abcdeB'.tr(): 'learn.abcdeBd'.tr(),
+      'learn.abcdeC'.tr(): 'learn.abcdeCd'.tr(),
+      'learn.abcdeD'.tr(): 'learn.abcdeDd'.tr(),
+      'learn.abcdeE'.tr(): 'learn.abcdeEd'.tr(),
     };
     return Card(
       child: Padding(
@@ -72,9 +73,8 @@ class _ABCDECard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SectionHeader('The ABCDE self-check'),
-            Text(
-                'A simple way to decide when to get a mole checked, from dermatology guidance:',
+            SectionHeader('learn.abcdeTitle'.tr()),
+            Text('learn.abcdeIntro'.tr(),
                 style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 8),
             ...items.entries.map((e) => Padding(
@@ -103,28 +103,25 @@ class _ModelCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final card = app.meta.modelCard;
     final theme = Theme.of(context);
+    // Patients get a plain-language explanation; clinics get the technical detail.
+    final intro =
+        app.isClinic ? 'learn.modelIntroClinic'.tr() : 'learn.modelIntroPatient'.tr();
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SectionHeader('About the model'),
-            Text(
-              'Veyrion uses a five-backbone feature-fusion network (Swin-Tiny, ConvNeXt-Base, '
-              'EfficientNet-B4, DenseNet-201, and a multi-scale ResNet-34) combined with '
-              'patient metadata, trained on HAM10000 with lesion-level grouped validation.',
-              style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
-            ),
+            SectionHeader('learn.modelTitle'.tr()),
+            Text(intro, style: theme.textTheme.bodyMedium?.copyWith(height: 1.4)),
             const SizedBox(height: 12),
-            _stat(context, 'Validation accuracy',
+            _stat(context, 'learn.statAccuracy'.tr(),
                 '${((card?.accuracy ?? AppConfig.modelAccuracy) * 100).toStringAsFixed(1)}%'),
-            _stat(context, 'Macro-F1',
+            _stat(context, 'learn.statMacroF1'.tr(),
                 (card?.macroF1 ?? AppConfig.modelMacroF1).toStringAsFixed(4)),
-            _stat(context, 'Melanoma recall',
+            _stat(context, 'learn.statMelRecall'.tr(),
                 '${((card?.melanomaRecall ?? AppConfig.modelMelanomaRecall) * 100).toStringAsFixed(1)}%'),
-            if (card != null && card.dataset.isNotEmpty)
-              _stat(context, 'Dataset', card.dataset),
+            _stat(context, 'learn.statDataset'.tr(), 'learn.datasetShort'.tr()),
             const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(12),
@@ -133,9 +130,7 @@ class _ModelCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                card?.keyCaveat ??
-                    'This is a controlled-benchmark model, not a clinically validated device. '
-                        'Its melanoma sensitivity is limited — never use it to rule out cancer.',
+                card?.keyCaveat ?? 'disclaimer.short'.tr(),
                 style: theme.textTheme.bodySmall?.copyWith(height: 1.4),
               ),
             ),
@@ -145,12 +140,20 @@ class _ModelCard extends StatelessWidget {
     );
   }
 
+  // Two flexible columns so a long value wraps instead of overflowing the row.
   Widget _stat(BuildContext context, String k, String v) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 3),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: Text(k)),
-            Text(v, style: const TextStyle(fontWeight: FontWeight.w700)),
+            Expanded(flex: 3, child: Text(k)),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 4,
+              child: Text(v,
+                  textAlign: TextAlign.end,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
+            ),
           ],
         ),
       );
@@ -189,7 +192,7 @@ class _ClassTile extends StatelessWidget {
           const SizedBox(height: 10),
           Align(
             alignment: Alignment.centerLeft,
-            child: Text('Clinical: $clinician',
+            child: Text('${'result.clinicalNote'.tr()}: $clinician',
                 style: TextStyle(
                     height: 1.4,
                     color: Theme.of(context).colorScheme.onSurfaceVariant)),
@@ -210,14 +213,10 @@ class _ReferencesCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SectionHeader('Source & credits'),
-            Text(
-              'Based on: "Multi-Backbone Feature Fusion for Multi-Class Skin Lesion '
-              'Classification" (V. Vaibhav & N. Das). Dataset: HAM10000 '
-              '(Tschandl et al., 2018).',
-              style:
-                  Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.4),
-            ),
+            SectionHeader('learn.sourceTitle'.tr()),
+            Text('learn.sourceBody'.tr(),
+                style:
+                    Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.4)),
           ],
         ),
       ),
