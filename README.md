@@ -84,4 +84,4 @@ require: external multi-site validation, prospective evaluation, a quality-manag
 system, and clearance/registration with your medical-device regulator (e.g. CDSCO
 in India, CE-MDR in the EU, FDA in the US). Ship it as an educational / triage
 support tool with the disclaimers intact until that work is done.
-more update on the project will come soon ,as soon as we are free
+More update on the project will come soon as soon as we are free.
