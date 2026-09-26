@@ -113,6 +113,40 @@ def _looks_like_image(data: bytes) -> bool:
     )
 
 
+def _skin_fraction(data: bytes) -> float:
+    """Fraction of pixels whose colour is plausibly skin or a skin lesion.
+
+    A real dermoscopic / close-up skin photo fills the frame with warm skin
+    tones (all Fitzpatrick types) plus the lesion itself (reddish/brown/dark).
+    Random objects — foliage, sky, screens, manufactured items — are dominated
+    by greens/blues/neutral greys and score low. Returns 1.0 (never block) if
+    the image can't be decoded, so this only ever REMOVES obvious non-skin.
+    """
+    try:
+        import io
+        import numpy as np
+        from PIL import Image
+
+        im = Image.open(io.BytesIO(data)).convert("RGB").resize((96, 96))
+        a = np.asarray(im, dtype=np.float32)
+        r, g, b = a[..., 0], a[..., 1], a[..., 2]
+        y = 0.299 * r + 0.587 * g + 0.114 * b
+        cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b
+        cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b
+        # Broad YCbCr skin gamut (covers pale to deep skin + brown/red lesions).
+        skin = (cb >= 77) & (cb <= 135) & (cr >= 133) & (cr <= 180)
+        # Dark lesion / shadow pixels that are not green- or blue-dominant.
+        dark = (y < 90) & (r + 6 >= g) & (r + 6 >= b)
+        return float((skin | dark).mean())
+    except Exception:
+        return 1.0
+
+
+# Below this fraction of skin-plausible pixels, we reject the image rather than
+# return a confident-looking prediction for a non-skin object.
+_SKIN_MIN_FRACTION = 0.30
+
+
 @app.post("/predict")
 def predict(
     image: UploadFile = File(...),
@@ -133,6 +167,15 @@ def predict(
         raise HTTPException(
             status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
             "Uploaded file is not a recognised image (JPEG/PNG/BMP/GIF/WEBP).",
+        )
+
+    # Skin gate: reject non-skin photos (random objects, screenshots, scenery)
+    # BEFORE running the model, so users never get a bogus prediction.
+    if _skin_fraction(data) < _SKIN_MIN_FRACTION:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            "This doesn't look like a photo of skin. Take a close, well-lit photo "
+            "of a single skin spot that fills the frame, then try again.",
         )
 
     result = get_predictor().predict(

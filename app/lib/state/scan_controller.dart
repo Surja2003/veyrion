@@ -33,6 +33,7 @@ class ScanController extends ChangeNotifier {
 
   Prediction? result;
   String? error;
+  bool notSkin = false; // set when the backend rejects a non-skin image (422)
 
   Uint8List? get workingImage => enhancedBytes ?? originalBytes;
 
@@ -47,6 +48,7 @@ class ScanController extends ChangeNotifier {
     localization = 'unknown';
     result = null;
     error = null;
+    notSkin = false;
     notifyListeners();
   }
 
@@ -113,6 +115,7 @@ class ScanController extends ChangeNotifier {
     if (workingImage == null || _app.token == null) return;
     stage = ScanStage.analysing;
     error = null;
+    notSkin = false;
     notifyListeners();
     try {
       final upload = await ops.prepareForUpload(workingImage!);
@@ -131,10 +134,11 @@ class ScanController extends ChangeNotifier {
       await _app.addToHistory(pred);
     } on ApiException catch (e) {
       error = e.message;
+      notSkin = e.statusCode == 422;
       stage = ScanStage.error;
       notifyListeners();
-    } catch (e) {
-      error = 'Analysis failed: $e';
+    } catch (_) {
+      error = 'Couldn’t reach the server. Please check your connection and try again.';
       stage = ScanStage.error;
       notifyListeners();
     }

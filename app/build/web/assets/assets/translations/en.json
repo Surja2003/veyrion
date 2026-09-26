@@ -73,7 +73,9 @@
     "autoWhiteBalance": "Auto white balance",
     "enhanceNote": "Enhancement helps you and the clinician see the lesion clearly. The model analyses the image you send here.",
     "analysing": "Analysing across five vision models…",
-    "analysisFailed": "Analysis failed"
+    "analysisFailed": "Analysis failed",
+    "notSkinTitle": "That doesn't look like skin",
+    "notSkinBody": "Veyrion only analyses photos of skin. Please take a close, well-lit photo of a single skin spot that fills the frame, then try again."
   },
   "camera": {
     "title": "DARM Camera",

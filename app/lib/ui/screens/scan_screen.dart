@@ -365,18 +365,21 @@ class _ErrorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scan = context.read<ScanController>();
+    final notSkin = scan.notSkin;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline,
+          Icon(notSkin ? Icons.image_not_supported_outlined : Icons.error_outline,
               size: 56, color: Theme.of(context).colorScheme.error),
           const SizedBox(height: 16),
-          Text('scan.analysisFailed'.tr(),
-              style: Theme.of(context).textTheme.titleLarge),
+          Text(notSkin ? 'scan.notSkinTitle'.tr() : 'scan.analysisFailed'.tr(),
+              style: Theme.of(context).textTheme.titleLarge,
+              textAlign: TextAlign.center),
           const SizedBox(height: 8),
-          Text(message, textAlign: TextAlign.center),
+          Text(notSkin ? 'scan.notSkinBody'.tr() : message,
+              textAlign: TextAlign.center),
           const SizedBox(height: 24),
           FilledButton(
             onPressed: () => scan.backToAdjust(),

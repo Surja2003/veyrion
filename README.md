@@ -1,87 +1,117 @@
-# Veyrion — Dermoscopic AI Risk Monitor
+# Veyrion — a friendly AI skin-check on your phone
 
-A production-oriented **Flutter app (Android · Web · Windows)** + **FastAPI backend**
-that puts your multi-backbone skin-lesion fusion model into the hands of patients
-and clinics. Take/upload a photo → crop & fine-tune → add age/sex/site → get a
-7-class breakdown with resemblance %, uncertainty, and a calm, non-hidden,
-role-aware explanation.
+Veyrion lets you take a close-up photo of a skin spot and get a calm, easy-to-read
+estimate of what it might be — with clear next steps. It's built for two kinds of
+people: **patients**, who get plain-language guidance without scary jargon, and
+**clinics**, who get the extra clinical detail underneath.
 
-> ⚠️ **Not a medical device.** Veyrion is a decision-support / screening aid built on
-> a controlled HAM10000 benchmark. Melanoma recall is ~69% — it can call a real
-> melanoma a harmless mole. It must never be used to rule out cancer.
+> ⚠️ **Veyrion is not a doctor and not a medical device.** It's a screening helper.
+> It can be wrong — it misses roughly 3 in 10 real melanomas — so **never use it to
+> decide that a spot is safe.** If anything looks new, changing, or worrying, see a
+> dermatologist.
 
-## What's in here
+---
 
+## 📲 Download the app (Android)
+
+**[⬇️ Download Veyrion for Android](https://github.com/Surja2003/veyrion/releases/latest/download/Veyrion.apk)**
+
+Then install it in three easy steps:
+
+1. **Tap the link above** on your Android phone (or open **Releases** on this page
+   and download `Veyrion.apk`).
+2. When your phone asks, **allow installing from this source** (Android shows a
+   one-time "install unknown apps" prompt — that's normal for apps outside the Play
+   Store). Then tap **Install**.
+3. **Open Veyrion** and sign in with one of the demo accounts below.
+
+That's it — no accounts to create, nothing to set up. The app already knows where to
+find its server.
+
+### 🌐 Or just try it in a browser
+No install needed: **[veyrion-pi.vercel.app](https://veyrion-pi.vercel.app)**
+
+### 🔑 Demo sign-ins
+| Role | Username | Password |
+|------|----------|----------|
+| Patient | `patient` | `patient123` |
+| Clinic  | `clinic`  | `clinic123` |
+
+---
+
+## How to use it
+
+1. **Scan** — take a close, well-lit photo of a single spot (or pick one from your
+   gallery). Fill the frame with the spot. You can crop and fine-tune it.
+2. **Read your result** — Veyrion shows how much the spot resembles each of 7 skin
+   types, a suggested next step (monitor / routine visit / see a dermatologist soon),
+   and a plain-language explanation. Nothing is hidden.
+3. **Ask the assistant** — a built-in chat can explain your result in your own
+   language (English, हिन्दी, বাংলা).
+4. **Learn** — the Learn tab explains the ABCDE self-check and the 7 lesion types.
+
+If you point the camera at something that isn't skin, Veyrion tells you it can't
+analyse it — it won't invent a result.
+
+---
+
+## The good stuff, honestly
+
+- Both patients and clinics see **all** the numbers — Veyrion never hides results,
+  it just explains them differently for each audience.
+- The **melanoma safety note** is shown to everyone, every time.
+- It works in **English, Hindi, and Bengali**, including the chat assistant.
+
+---
+
+<details>
+<summary><b>For developers — build it yourself</b></summary>
+
+### What's in this repo
 ```
 darm/
-├── notebook*.ipynb     # your Kaggle training notebooks (unchanged)
-├── backend/            # FastAPI inference service (matches the paper exactly)
-│   ├── app/            # model, predictor, auth, API
-│   └── weights/        # drop your .pth checkpoints here (mock mode until then)
-└── app/                # Flutter client (android · web · windows)
-    └── lib/
+├── notebook*.ipynb   # Kaggle training notebooks
+├── backend/          # FastAPI inference service
+│   ├── app/          # model, predictor, auth, API, skin-image gate
+│   └── weights/      # .pth checkpoints (runs in a labelled mock mode until present)
+├── deploy_hf/        # the copy that runs on the server (Docker)
+└── app/              # Flutter client (Android · Web · Windows)
 ```
 
-## The model this serves
+### The model
+Five vision backbones (Swin-Tiny, ConvNeXt-Base, EfficientNet-B4, DenseNet-201, a
+multi-scale ResNet-34) + patient metadata are fused into a 5760-dim vector →
+`GrandmasterFusionNet` → 7 classes (`nv, mel, bkl, bcc, akiec, vasc, df`), with
+MC-Dropout uncertainty. Trained on **HAM10000** with lesion-grouped validation:
+**90.62% accuracy · Macro-F1 0.8257 · melanoma recall 0.689**.
 
-Five backbones (Swin-Tiny 768, ConvNeXt-Base 1024, EfficientNet-B4 1792,
-DenseNet-201 1920, multi-scale ResNet-34 → 128) + patient metadata (128) fused to
-a **5760-dim** vector → `GrandmasterFusionNet` head → 7 classes
-(`nv, mel, bkl, bcc, akiec, vasc, df`). The backend reproduces the exact metadata
-encoding, age z-scoring, softmax and MC-Dropout uncertainty from your notebooks.
-
-Validation (C2, MixUp off): **90.62% acc · Macro-F1 0.8257 · melanoma recall 0.689**.
-
-## Run it in 3 steps
-
-### 1. Backend (mock mode works immediately, no weights/torch needed)
+### Run the backend
 ```bash
 cd backend
-py -3.11 -m venv .venv && .venv\Scripts\activate      # Python 3.11/3.12 recommended
-pip install -r requirements-min.txt                   # or requirements.txt for real inference
+py -3.11 -m venv .venv && .venv\Scripts\activate
+pip install -r requirements.txt          # real inference (needs the .pth weights)
 uvicorn app.main:app --port 8000
 ```
-For **real predictions**: `pip install -r requirements.txt`, put your six `.pth`
-files in `backend/weights/` (see `backend/weights/README.md`), restart.
+Put the six `.pth` files in `backend/weights/` for real predictions (mock mode
+otherwise). Docker: build from `deploy_hf/Dockerfile` (serves on port 7860).
 
-### 2. App
+### Run the app
 ```bash
 cd app
 flutter pub get
-flutter run -d chrome        # Web  (the "flutter web extension")
-flutter run -d windows       # Windows desktop
-flutter run -d <android-id>  # Android device/emulator
+flutter run -d chrome                     # web
+flutter run -d <android-id>               # Android device/emulator
+# point it at your own backend:
+flutter build apk --release --dart-define=DARM_API_BASE=https://your-backend
 ```
 
-### 3. Sign in
-- **Patient:** `patient / patient123`
-- **Clinic:**  `clinic / clinic123`
+</details>
 
-Set the server URL in-app under **Settings**, or at build time:
-```bash
-flutter run -d chrome --dart-define=Veyrion_API_BASE=https://your-space.hf.space
-```
-(Android emulator reaches your machine at `http://10.0.2.2:8000`, already the default.)
+---
 
-## How the app frames results (your requirement: full power, nothing hidden)
-
-Both roles see **every** number — all 7 probabilities, uncertainty, malignant mass,
-confidence. The difference is framing:
-- **Patient** view leads with plain-language reassurance + clear next steps, so
-  results are understood without panic.
-- **Clinic** view adds clinical caveats (dominant MEL→NV confusion, per-class F1,
-  "low melanoma score ≠ rule-out") and record-oriented detail.
-
-The safety caveat about melanoma sensitivity is shown to **everyone**, always.
-
-## Deploy the backend
-- **Docker:** `cd backend && docker build -t darm-api . && docker run -p 8000:8000 -v %cd%/weights:/app/weights darm-api`
-- **Hugging Face Spaces (Docker SDK):** use `backend/Dockerfile`, expose port 7860.
-
-## Regulatory reality (please read before any real-world use)
-This is a student/benchmark system. Real clinical use in the medical sector would
-require: external multi-site validation, prospective evaluation, a quality-management
-system, and clearance/registration with your medical-device regulator (e.g. CDSCO
-in India, CE-MDR in the EU, FDA in the US). Ship it as an educational / triage
-support tool with the disclaimers intact until that work is done.
-More update on the project will come soon as soon as we are free.
+## Please read before any real-world use
+Veyrion is a student / benchmark project. Genuine clinical use would need external
+multi-site validation, prospective testing, a quality-management system, and
+clearance from a medical-device regulator (CDSCO in India, CE-MDR in the EU, FDA in
+the US). Until then, treat it as an educational and triage-support tool, with all its
+disclaimers kept intact.

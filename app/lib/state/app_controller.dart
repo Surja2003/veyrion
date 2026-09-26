@@ -160,8 +160,8 @@ class AppController extends ChangeNotifier {
       return null;
     } on ApiException catch (e) {
       return e.message;
-    } catch (e) {
-      return 'Could not reach the server. Check the API URL in Settings.';
+    } catch (_) {
+      return 'Couldn’t reach the server. Please check your connection and try again.';
     }
   }
 

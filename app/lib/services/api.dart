@@ -144,14 +144,35 @@ class DarmApi {
     return j['reply'] as String? ?? '';
   }
 
+  // Turn any failure into a plain, human message — never surface HTTP status
+  // codes (404 / 429 / 502 …) to the user. Backend messages for image problems
+  // (400/415/422) are already written in plain language, so we keep those.
   void _ensureOk(http.Response r) {
-    if (r.statusCode >= 200 && r.statusCode < 300) return;
-    String msg = 'Request failed (${r.statusCode})';
+    final code = r.statusCode;
+    if (code >= 200 && code < 300) return;
+    String? detail;
     try {
       final j = jsonDecode(r.body);
-      if (j is Map && j['detail'] != null) msg = j['detail'].toString();
+      if (j is Map && j['detail'] != null) detail = j['detail'].toString();
     } catch (_) {}
-    throw ApiException(msg, r.statusCode);
+    String msg;
+    switch (code) {
+      case 401:
+        msg = 'Your session expired — please sign in again.';
+        break;
+      case 400:
+      case 413:
+      case 415:
+      case 422:
+        msg = detail ?? 'That image couldn’t be used. Please try a clear skin photo.';
+        break;
+      case 429:
+        msg = 'The service is busy right now. Please wait a moment and try again.';
+        break;
+      default:
+        msg = 'The server is having a problem right now. Please try again shortly.';
+    }
+    throw ApiException(msg, code);
   }
 
   void close() => _client.close();

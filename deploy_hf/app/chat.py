@@ -130,10 +130,7 @@ async def answer(
 ) -> str:
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        return (
-            "The assistant isn't configured yet (no GEMINI_API_KEY set on the server). "
-            "Add a free Google AI Studio key as a Space secret to enable chat."
-        )
+        return "The assistant isn't available right now. Please try again later."
 
     contents = []
     for m in history[-10:]:  # keep the last few turns for context
@@ -181,8 +178,7 @@ async def answer(
                     continue
                 break
         return (
-            "Sorry, the assistant is busy right now "
-            f"(error {last_status}). Please try again in a few seconds."
+            "The assistant is busy right now. Please wait a few seconds and try again."
         )
     except Exception:
         return (
