@@ -1,6 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
-import '../../core/config.dart';
 import '../../core/theme.dart';
 
 /// Reusable small UI pieces.
@@ -26,7 +26,7 @@ class DisclaimerBanner extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              long ? Disclaimers.long : Disclaimers.short,
+              long ? 'disclaimer.long'.tr() : 'disclaimer.short'.tr(),
               style: Theme.of(context)
                   .textTheme
                   .bodySmall

@@ -65,7 +65,7 @@ class ResultScreen extends StatelessWidget {
 
                 // Patient reassurance is shown to BOTH roles (nothing hidden),
                 // but it leads for patients and is framed as guidance for clinics.
-                _ReassuranceCard(isClinic: isClinic),
+                _ReassuranceCard(pred: pred, isClinic: isClinic),
                 const SizedBox(height: 16),
 
                 RepaintBoundary(child: _AllProbabilities(pred: pred)),
@@ -305,13 +305,23 @@ class _UrgencyCard extends StatelessWidget {
 }
 
 class _ReassuranceCard extends StatelessWidget {
-  const _ReassuranceCard({required this.isClinic});
+  const _ReassuranceCard({required this.pred, required this.isClinic});
+  final Prediction pred;
   final bool isClinic;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final c = theme.colorScheme;
+    // Low-risk ("monitor") results get a soft, positive message rather than the
+    // "take a breath" calming text, which only fits when there's something to
+    // worry about.
+    final low = pred.urgency.band == 'monitor';
+    final title = isClinic
+        ? 'result.whatPatientTold'.tr()
+        : (low ? 'result.reassureLowTitle'.tr() : 'result.readFirst'.tr());
+    final body =
+        low ? 'disclaimer.reassuranceLow'.tr() : 'disclaimer.reassurance'.tr();
     return Card(
       color: c.primaryContainer.withValues(alpha: 0.35),
       child: Padding(
@@ -321,16 +331,18 @@ class _ReassuranceCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.favorite_outline, color: c.primary, size: 20),
+                Icon(low ? Icons.verified_outlined : Icons.favorite_outline,
+                    color: c.primary, size: 20),
                 const SizedBox(width: 8),
-                Text(isClinic ? 'What the patient is told' : 'Read this first',
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w700)),
+                Expanded(
+                  child: Text(title,
+                      style: theme.textTheme.titleSmall
+                          ?.copyWith(fontWeight: FontWeight.w700)),
+                ),
               ],
             ),
             const SizedBox(height: 8),
-            Text(Disclaimers.patientReassurance,
-                style: theme.textTheme.bodyMedium?.copyWith(height: 1.4)),
+            Text(body, style: theme.textTheme.bodyMedium?.copyWith(height: 1.4)),
           ],
         ),
       ),
