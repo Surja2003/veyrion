@@ -122,7 +122,8 @@ class _HomeShellState extends State<HomeShell> {
             const SizedBox(width: 4),
           ],
         ),
-        body: wide
+        body: AmbientBackground(
+          child: wide
             ? Row(
                 children: [
                   NavigationRail(
@@ -160,6 +161,7 @@ class _HomeShellState extends State<HomeShell> {
                   child: _page(_index),
                 ),
               ),
+        ),
         bottomNavigationBar: wide
             ? null
             : Padding(

@@ -9,6 +9,7 @@ import '../../models/prediction.dart';
 import '../../state/app_controller.dart';
 import '../../state/scan_controller.dart';
 import '../widgets/common.dart';
+import '../widgets/glass.dart';
 import '../widgets/probability_bar.dart';
 import 'chat_screen.dart';
 
@@ -41,79 +42,76 @@ class ResultScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
-            child: ListView(
-              padding: const EdgeInsets.all(20),
-              children: [
-                if (pred.mock) const _MockWarning(),
-                if (pred.mock) const SizedBox(height: 12),
+      body: AmbientBackground(
+        child: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: ListView(
+                padding: const EdgeInsets.all(20),
+                children: [
+                  if (pred.mock) const _MockWarning(),
+                  if (pred.mock) const SizedBox(height: 12),
 
-                // When the model is near-uniform / very unsure, the image is
-                // probably not a clear single-lesion photo (e.g. a random object).
-                // Warn prominently so users/clinics don't trust a bogus number.
-                if (_looksUnreliable(pred)) const _UnreliableBanner(),
-                if (_looksUnreliable(pred)) const SizedBox(height: 12),
+                  // Non-skin / near-uniform image → warn, don't pretend.
+                  if (_looksUnreliable(pred)) const _UnreliableBanner(),
+                  if (_looksUnreliable(pred)) const SizedBox(height: 12),
 
-                _HeadlineCard(pred: pred, image: scan.workingImage),
-                const SizedBox(height: 16),
-
-                _UrgencyCard(pred: pred),
-                const SizedBox(height: 16),
-
-                // Patient reassurance is shown to BOTH roles (nothing hidden),
-                // but it leads for patients and is framed as guidance for clinics.
-                _ReassuranceCard(pred: pred, isClinic: isClinic),
-                const SizedBox(height: 16),
-
-                RepaintBoundary(child: _AllProbabilities(pred: pred)),
-                const SizedBox(height: 16),
-
-                _ConfidenceCard(pred: pred),
-                const SizedBox(height: 16),
-
-                _TopClassDetail(pred: pred, isClinic: isClinic),
-                const SizedBox(height: 16),
-
-                // The melanoma-miss caveat — always shown, it is safety-critical.
-                _SafetyCaveat(pred: pred),
-                const SizedBox(height: 16),
-
-                if (isClinic) ...[
-                  _ClinicalNotes(pred: pred),
+                  _HeadlineCard(pred: pred, image: scan.workingImage),
                   const SizedBox(height: 16),
-                ],
 
-                const DisclaimerBanner(long: true),
-                const SizedBox(height: 20),
+                  _UrgencyCard(pred: pred),
+                  const SizedBox(height: 16),
 
-                OutlinedButton.icon(
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => ChatScreen(grounding: pred),
+                  _ReassuranceCard(pred: pred, isClinic: isClinic),
+                  const SizedBox(height: 16),
+
+                  RepaintBoundary(child: _AllProbabilities(pred: pred)),
+                  const SizedBox(height: 16),
+
+                  _ConfidenceCard(pred: pred),
+                  const SizedBox(height: 16),
+
+                  _TopClassDetail(pred: pred, isClinic: isClinic),
+                  const SizedBox(height: 16),
+
+                  _SafetyCaveat(pred: pred),
+                  const SizedBox(height: 16),
+
+                  if (isClinic) ...[
+                    _ClinicalNotes(pred: pred),
+                    const SizedBox(height: 16),
+                  ],
+
+                  const DisclaimerBanner(long: true),
+                  const SizedBox(height: 20),
+
+                  OutlinedButton.icon(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ChatScreen(grounding: pred),
+                      ),
                     ),
+                    icon: const Icon(Icons.forum_outlined),
+                    label: Text('result.askAssistant'.tr()),
                   ),
-                  icon: const Icon(Icons.forum_outlined),
-                  label: Text('result.askAssistant'.tr()),
-                ),
-                const SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
-                FilledButton.icon(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.add_a_photo_outlined),
-                  label: Text('result.newScan'.tr()),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Latency ${pred.latencyMs.toStringAsFixed(0)} ms · ${pred.modelConfig}',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant),
-                ),
-                const SizedBox(height: 12),
-              ],
+                  FilledButton.icon(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.add_a_photo_outlined),
+                    label: Text('result.newScan'.tr()),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Latency ${pred.latencyMs.toStringAsFixed(0)} ms · ${pred.modelConfig}',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+              ),
             ),
           ),
         ),
@@ -124,9 +122,8 @@ class ResultScreen extends StatelessWidget {
 
 // --------------------------------------------------------------------------- //
 
-/// Heuristic: the probabilities are spread almost evenly across all 7 classes and
-/// the top pick is weak — the model doesn't recognise a lesion here, which is what
-/// a non-dermoscopic / random photo produces. Better to warn than to pretend.
+/// Near-uniform probabilities + weak top pick → the image probably isn't a
+/// clear single-lesion photo, so the result shouldn't be trusted.
 bool _looksUnreliable(Prediction pred) {
   final c = pred.confidence;
   return c.topProbability < 0.32 && c.entropyNormalised > 0.85;
@@ -137,13 +134,10 @@ class _UnreliableBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Theme.of(context).colorScheme;
-    return Container(
+    return GlassCard(
+      tint: c.error,
+      tintStrength: 0.22,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: c.errorContainer,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: c.error.withValues(alpha: 0.5)),
-      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -174,23 +168,18 @@ class _MockWarning extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Theme.of(context).colorScheme;
-    return Container(
+    return GlassCard(
+      tint: c.error,
+      tintStrength: 0.22,
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: c.errorContainer,
-        borderRadius: BorderRadius.circular(12),
-      ),
       child: Row(
         children: [
           Icon(Icons.science_outlined, color: c.onErrorContainer),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              'MOCK RESULT — the server has no trained weights loaded, so these numbers '
-              'are placeholders for testing the app, not real predictions.',
-              style: TextStyle(
-                  color: c.onErrorContainer, fontWeight: FontWeight.w600),
-            ),
+            child: Text('result.mockBody'.tr(),
+                style: TextStyle(
+                    color: c.onErrorContainer, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -208,53 +197,51 @@ class _HeadlineCard extends StatelessWidget {
     final theme = Theme.of(context);
     final color = AppTheme.risk(pred.topRisk);
     final img = image;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (img != null)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.memory(img,
-                    width: 88,
-                    height: 88,
-                    fit: BoxFit.cover,
-                    gaplessPlayback: true),
-              ),
-            if (img != null) const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Most likely', style: theme.textTheme.labelMedium),
-                  const SizedBox(height: 2),
-                  Text(pred.topName,
-                      style: theme.textTheme.titleLarge
-                          ?.copyWith(fontWeight: FontWeight.bold)),
-                  Text(pred.topCommonName,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant)),
-                  const SizedBox(height: 10),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Text('${(pred.topProbability * 100).toStringAsFixed(1)}%',
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                              color: color, fontWeight: FontWeight.bold)),
-                      const SizedBox(width: 6),
-                      Text('resemblance', style: theme.textTheme.bodySmall),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  RiskBadge(risk: pred.topRisk),
-                ],
-              ),
+    return GlassCard(
+      tint: color,
+      tintStrength: 0.05,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (img != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: Image.memory(img,
+                  width: 88, height: 88, fit: BoxFit.cover, gaplessPlayback: true),
             ),
-          ],
-        ),
+          if (img != null) const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('result.mostLikely'.tr(),
+                    style: theme.textTheme.labelMedium),
+                const SizedBox(height: 2),
+                Text(pred.topName,
+                    style: theme.textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold)),
+                Text(pred.topCommonName,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant)),
+                const SizedBox(height: 10),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text('${(pred.topProbability * 100).toStringAsFixed(1)}%',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                            color: color, fontWeight: FontWeight.bold)),
+                    const SizedBox(width: 6),
+                    Text('result.resemblance'.tr(),
+                        style: theme.textTheme.bodySmall),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                RiskBadge(risk: pred.topRisk),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -268,13 +255,9 @@ class _UrgencyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = AppTheme.risk(pred.urgency.band);
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
-      ),
+    return GlassCard(
+      tint: color,
+      tintStrength: 0.12,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -293,8 +276,8 @@ class _UrgencyCard extends StatelessWidget {
           Text(pred.urgency.message, style: theme.textTheme.bodyMedium),
           const SizedBox(height: 10),
           Text(
-            'Combined chance of a cancerous / pre-cancerous type: '
-            '${(pred.malignantProbability * 100).toStringAsFixed(1)}%',
+            'result.combinedMalignant'.tr(
+                args: [(pred.malignantProbability * 100).toStringAsFixed(1)]),
             style: theme.textTheme.bodySmall
                 ?.copyWith(fontWeight: FontWeight.w600),
           ),
@@ -313,38 +296,33 @@ class _ReassuranceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final c = theme.colorScheme;
-    // Low-risk ("monitor") results get a soft, positive message rather than the
-    // "take a breath" calming text, which only fits when there's something to
-    // worry about.
     final low = pred.urgency.band == 'monitor';
     final title = isClinic
         ? 'result.whatPatientTold'.tr()
         : (low ? 'result.reassureLowTitle'.tr() : 'result.readFirst'.tr());
     final body =
         low ? 'disclaimer.reassuranceLow'.tr() : 'disclaimer.reassurance'.tr();
-    return Card(
-      color: c.primaryContainer.withValues(alpha: 0.35),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(low ? Icons.verified_outlined : Icons.favorite_outline,
-                    color: c.primary, size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(title,
-                      style: theme.textTheme.titleSmall
-                          ?.copyWith(fontWeight: FontWeight.w700)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(body, style: theme.textTheme.bodyMedium?.copyWith(height: 1.4)),
-          ],
-        ),
+    return GlassCard(
+      tint: c.primary,
+      tintStrength: 0.10,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(low ? Icons.verified_outlined : Icons.favorite_outline,
+                  color: c.primary, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(title,
+                    style: theme.textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w700)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(body, style: theme.textTheme.bodyMedium?.copyWith(height: 1.4)),
+        ],
       ),
     );
   }
@@ -356,27 +334,21 @@ class _AllProbabilities extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SectionHeader('How much it resembles each type'),
-            Text(
-              'Every class is shown — nothing is hidden. Percentages are the model’s '
-              'estimated resemblance and add up to 100%.',
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionHeader('result.allTypesTitle'.tr()),
+          Text('result.allTypesNote'.tr(),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
-            const SizedBox(height: 8),
-            ...pred.ranked.map((r) => ProbabilityBar(
-                  result: r,
-                  highlighted: r.code == pred.topCode,
-                  onTap: () => _showClassSheet(context, r),
-                )),
-          ],
-        ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          const SizedBox(height: 8),
+          ...pred.ranked.map((r) => ProbabilityBar(
+                result: r,
+                highlighted: r.code == pred.topCode,
+                onTap: () => _showClassSheet(context, r),
+              )),
+        ],
       ),
     );
   }
@@ -411,14 +383,15 @@ void _showClassSheet(BuildContext context, ClassResult r) {
               style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
                   color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
           const SizedBox(height: 12),
-          Text('${r.resemblancePct.toStringAsFixed(1)}% resemblance',
+          Text(
+              '${r.resemblancePct.toStringAsFixed(1)}% ${'result.resemblance'.tr()}',
               style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
                   color: AppTheme.risk(r.risk), fontWeight: FontWeight.bold)),
           if (r.uncertainty != null)
-            Text('± ${(r.uncertainty! * 100).toStringAsFixed(1)}% uncertainty',
+            Text('± ${(r.uncertainty! * 100).toStringAsFixed(1)}%',
                 style: Theme.of(ctx).textTheme.bodySmall),
           const SizedBox(height: 16),
-          Text('In plain language',
+          Text('result.plainLanguage'.tr(),
               style: Theme.of(ctx)
                   .textTheme
                   .titleSmall
@@ -426,7 +399,7 @@ void _showClassSheet(BuildContext context, ClassResult r) {
           const SizedBox(height: 4),
           Text(r.patientNote, style: const TextStyle(height: 1.4)),
           const SizedBox(height: 16),
-          Text('Clinical note',
+          Text('result.clinicalNote'.tr(),
               style: Theme.of(ctx)
                   .textTheme
                   .titleSmall
@@ -453,42 +426,43 @@ class _ConfidenceCard extends StatelessWidget {
         : level == 'moderate'
             ? AppTheme.riskModerate
             : AppTheme.riskHigh;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Expanded(child: SectionHeader('Model confidence')),
-                Pill(level.toUpperCase(), icon: Icons.speed, color: color),
-              ],
-            ),
-            const SizedBox(height: 4),
-            _metric(context, 'Top resemblance',
-                '${(conf.topProbability * 100).toStringAsFixed(1)}%'),
-            _metric(context, 'Spread across classes (entropy)',
-                '${(conf.entropyNormalised * 100).toStringAsFixed(0)}%'),
-            if (conf.mcDropoutAvailable && conf.meanUncertainty != null)
-              _metric(context, 'Average uncertainty (MC-Dropout)',
-                  '± ${(conf.meanUncertainty! * 100).toStringAsFixed(1)}%'),
-            const SizedBox(height: 8),
-            Text(
-              level == 'low'
-                  ? 'Low confidence: the model is unsure. Treat this as a nudge to get a '
-                      'professional opinion, not as an answer.'
-                  : level == 'moderate'
-                      ? 'Moderate confidence. Useful signal, but confirm with a clinician.'
-                      : 'Higher confidence — but confidence is not correctness. Still confirm anything concerning.',
+    final desc = level == 'low'
+        ? 'result.confLow'.tr()
+        : level == 'moderate'
+            ? 'result.confModerate'.tr()
+            : 'result.confHigh'.tr();
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: SectionHeader('result.confidence'.tr())),
+              Pill(_levelLabel(level), icon: Icons.speed, color: color),
+            ],
+          ),
+          const SizedBox(height: 4),
+          _metric(context, 'result.topResemblance'.tr(),
+              '${(conf.topProbability * 100).toStringAsFixed(1)}%'),
+          _metric(context, 'result.spread'.tr(),
+              '${(conf.entropyNormalised * 100).toStringAsFixed(0)}%'),
+          if (conf.mcDropoutAvailable && conf.meanUncertainty != null)
+            _metric(context, 'result.avgUncertainty'.tr(),
+                '± ${(conf.meanUncertainty! * 100).toStringAsFixed(1)}%'),
+          const SizedBox(height: 8),
+          Text(desc,
               style: theme.textTheme.bodySmall
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-            ),
-          ],
-        ),
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+        ],
       ),
     );
   }
+
+  String _levelLabel(String level) => switch (level) {
+        'high' => 'result.confHighTag'.tr(),
+        'moderate' => 'result.confModTag'.tr(),
+        _ => 'result.confLowTag'.tr(),
+      };
 
   Widget _metric(BuildContext context, String label, String value) {
     return Padding(
@@ -512,26 +486,23 @@ class _TopClassDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     final top = pred.top;
     final theme = Theme.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SectionHeader('About "${top.name}"'),
-            Text('In plain language',
-                style: theme.textTheme.titleSmall
-                    ?.copyWith(fontWeight: FontWeight.w700)),
-            const SizedBox(height: 4),
-            Text(top.patientNote, style: const TextStyle(height: 1.4)),
-            const SizedBox(height: 14),
-            Text(isClinic ? 'Clinical note' : 'For your doctor',
-                style: theme.textTheme.titleSmall
-                    ?.copyWith(fontWeight: FontWeight.w700)),
-            const SizedBox(height: 4),
-            Text(top.clinicianNote, style: const TextStyle(height: 1.4)),
-          ],
-        ),
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionHeader('result.aboutClass'.tr(args: [top.name])),
+          Text('result.plainLanguage'.tr(),
+              style: theme.textTheme.titleSmall
+                  ?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          Text(top.patientNote, style: const TextStyle(height: 1.4)),
+          const SizedBox(height: 14),
+          Text(isClinic ? 'result.clinicalNote'.tr() : 'result.forYourDoctor'.tr(),
+              style: theme.textTheme.titleSmall
+                  ?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          Text(top.clinicianNote, style: const TextStyle(height: 1.4)),
+        ],
       ),
     );
   }
@@ -544,18 +515,13 @@ class _SafetyCaveat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final c = theme.colorScheme;
-    // Especially important when the top pick is benign but melanoma is plausible.
     final melResemblance = pred.classes
         .firstWhere((e) => e.code == 'mel', orElse: () => pred.ranked.first)
         .resemblancePct;
-    return Container(
+    return GlassCard(
+      tint: AppTheme.riskModerate,
+      tintStrength: 0.10,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: c.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.riskModerate.withValues(alpha: 0.4)),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -563,17 +529,19 @@ class _SafetyCaveat extends StatelessWidget {
             children: [
               const Icon(Icons.shield_outlined, color: AppTheme.riskModerate),
               const SizedBox(width: 8),
-              Text('Important safety note',
-                  style: theme.textTheme.titleSmall
-                      ?.copyWith(fontWeight: FontWeight.w700)),
+              Expanded(
+                child: Text('result.safetyTitle'.tr(),
+                    style: theme.textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w700)),
+              ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            'This model correctly flags only about ${(AppConfig.modelMelanomaRecall * 100).toStringAsFixed(0)}% '
-            'of true melanomas — its most common mistake is calling a melanoma a harmless mole. '
-            'A low melanoma score (here ${melResemblance.toStringAsFixed(1)}%) does NOT rule out cancer. '
-            'If a spot is new, changing, or worrying you, see a dermatologist regardless of this result.',
+            'result.safetyBody'.tr(args: [
+              (AppConfig.modelMelanomaRecall * 100).toStringAsFixed(0),
+              melResemblance.toStringAsFixed(1),
+            ]),
             style: theme.textTheme.bodySmall?.copyWith(height: 1.4),
           ),
         ],
@@ -589,29 +557,26 @@ class _ClinicalNotes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SectionHeader('Clinical decision context'),
-            _line(theme, 'Model',
-                '${pred.modelConfig} · 5-backbone fusion + metadata'),
-            _line(theme, 'Validation accuracy',
-                '${(AppConfig.modelAccuracy * 100).toStringAsFixed(1)}% (lesion-grouped)'),
-            _line(theme, 'Macro-F1', AppConfig.modelMacroF1.toStringAsFixed(4)),
-            _line(theme, 'Melanoma recall',
-                '${(AppConfig.modelMelanomaRecall * 100).toStringAsFixed(1)}% — under-sensitive'),
-            const SizedBox(height: 8),
-            Text(
-              'Dominant confusions in validation: MEL→NV (53), BKL→MEL (17), AKIEC→BKL (7). '
-              'Correlate with dermoscopy, history and ABCDE; low melanoma probability is not '
-              'a rule-out. Consider biopsy on clinical suspicion irrespective of model output.',
-              style: theme.textTheme.bodySmall?.copyWith(height: 1.4),
-            ),
-          ],
-        ),
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionHeader('result.clinicalContext'.tr()),
+          _line(theme, 'Model',
+              '${pred.modelConfig} · 5-backbone fusion + metadata'),
+          _line(theme, 'Validation accuracy',
+              '${(AppConfig.modelAccuracy * 100).toStringAsFixed(1)}% (lesion-grouped)'),
+          _line(theme, 'Macro-F1', AppConfig.modelMacroF1.toStringAsFixed(4)),
+          _line(theme, 'Melanoma recall',
+              '${(AppConfig.modelMelanomaRecall * 100).toStringAsFixed(1)}% — under-sensitive'),
+          const SizedBox(height: 8),
+          Text(
+            'Dominant confusions in validation: MEL→NV (53), BKL→MEL (17), AKIEC→BKL (7). '
+            'Correlate with dermoscopy, history and ABCDE; low melanoma probability is not '
+            'a rule-out. Consider biopsy on clinical suspicion irrespective of model output.',
+            style: theme.textTheme.bodySmall?.copyWith(height: 1.4),
+          ),
+        ],
       ),
     );
   }

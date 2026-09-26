@@ -6,6 +6,7 @@ import '../../core/config.dart';
 import '../../core/theme.dart';
 import '../../state/app_controller.dart';
 import '../widgets/common.dart';
+import '../widgets/glass.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -67,29 +68,26 @@ class _ABCDECard extends StatelessWidget {
       'learn.abcdeD'.tr(): 'learn.abcdeDd'.tr(),
       'learn.abcdeE'.tr(): 'learn.abcdeEd'.tr(),
     };
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SectionHeader('learn.abcdeTitle'.tr()),
-            Text('learn.abcdeIntro'.tr(),
-                style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 8),
-            ...items.entries.map((e) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(e.key,
-                          style: const TextStyle(fontWeight: FontWeight.w700)),
-                      Text(e.value),
-                    ],
-                  ),
-                )),
-          ],
-        ),
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionHeader('learn.abcdeTitle'.tr()),
+          Text('learn.abcdeIntro'.tr(),
+              style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: 8),
+          ...items.entries.map((e) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(e.key,
+                        style: const TextStyle(fontWeight: FontWeight.w700)),
+                    Text(e.value),
+                  ],
+                ),
+              )),
+        ],
       ),
     );
   }
@@ -103,44 +101,40 @@ class _ModelCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final card = app.meta.modelCard;
     final theme = Theme.of(context);
-    // Patients get a plain-language explanation; clinics get the technical detail.
-    final intro =
-        app.isClinic ? 'learn.modelIntroClinic'.tr() : 'learn.modelIntroPatient'.tr();
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SectionHeader('learn.modelTitle'.tr()),
-            Text(intro, style: theme.textTheme.bodyMedium?.copyWith(height: 1.4)),
-            const SizedBox(height: 12),
-            _stat(context, 'learn.statAccuracy'.tr(),
-                '${((card?.accuracy ?? AppConfig.modelAccuracy) * 100).toStringAsFixed(1)}%'),
-            _stat(context, 'learn.statMacroF1'.tr(),
-                (card?.macroF1 ?? AppConfig.modelMacroF1).toStringAsFixed(4)),
-            _stat(context, 'learn.statMelRecall'.tr(),
-                '${((card?.melanomaRecall ?? AppConfig.modelMelanomaRecall) * 100).toStringAsFixed(1)}%'),
-            _stat(context, 'learn.statDataset'.tr(), 'learn.datasetShort'.tr()),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppTheme.riskModerate.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                card?.keyCaveat ?? 'disclaimer.short'.tr(),
-                style: theme.textTheme.bodySmall?.copyWith(height: 1.4),
-              ),
+    final intro = app.isClinic
+        ? 'learn.modelIntroClinic'.tr()
+        : 'learn.modelIntroPatient'.tr();
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionHeader('learn.modelTitle'.tr()),
+          Text(intro, style: theme.textTheme.bodyMedium?.copyWith(height: 1.4)),
+          const SizedBox(height: 12),
+          _stat(context, 'learn.statAccuracy'.tr(),
+              '${((card?.accuracy ?? AppConfig.modelAccuracy) * 100).toStringAsFixed(1)}%'),
+          _stat(context, 'learn.statMacroF1'.tr(),
+              (card?.macroF1 ?? AppConfig.modelMacroF1).toStringAsFixed(4)),
+          _stat(context, 'learn.statMelRecall'.tr(),
+              '${((card?.melanomaRecall ?? AppConfig.modelMelanomaRecall) * 100).toStringAsFixed(1)}%'),
+          _stat(context, 'learn.statDataset'.tr(), 'learn.datasetShort'.tr()),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppTheme.riskModerate.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(10),
             ),
-          ],
-        ),
+            child: Text(
+              card?.keyCaveat ?? 'disclaimer.short'.tr(),
+              style: theme.textTheme.bodySmall?.copyWith(height: 1.4),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  // Two flexible columns so a long value wraps instead of overflowing the row.
   Widget _stat(BuildContext context, String k, String v) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 3),
         child: Row(
@@ -173,31 +167,42 @@ class _ClassTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: ExpansionTile(
-        shape: const Border(),
-        collapsedShape: const Border(),
-        leading: Icon(
-            malignant ? Icons.coronavirus_outlined : Icons.spa_outlined,
-            color: AppTheme.risk(risk)),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text(common, maxLines: 1, overflow: TextOverflow.ellipsis),
-        trailing: RiskBadge(risk: risk, compact: true),
-        childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(patient, style: const TextStyle(height: 1.4)),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: GlassCard(
+        padding: EdgeInsets.zero,
+        radius: 18,
+        child: Theme(
+          data: Theme.of(context)
+              .copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            shape: const Border(),
+            collapsedShape: const Border(),
+            leading: Icon(
+                malignant ? Icons.coronavirus_outlined : Icons.spa_outlined,
+                color: AppTheme.risk(risk)),
+            title:
+                Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+            subtitle:
+                Text(common, maxLines: 1, overflow: TextOverflow.ellipsis),
+            trailing: RiskBadge(risk: risk, compact: true),
+            childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(patient, style: const TextStyle(height: 1.4)),
+              ),
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text('${'result.clinicalNote'.tr()}: $clinician',
+                    style: TextStyle(
+                        height: 1.4,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text('${'result.clinicalNote'.tr()}: $clinician',
-                style: TextStyle(
-                    height: 1.4,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -207,18 +212,15 @@ class _ReferencesCard extends StatelessWidget {
   const _ReferencesCard();
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SectionHeader('learn.sourceTitle'.tr()),
-            Text('learn.sourceBody'.tr(),
-                style:
-                    Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.4)),
-          ],
-        ),
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionHeader('learn.sourceTitle'.tr()),
+          Text('learn.sourceBody'.tr(),
+              style:
+                  Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.4)),
+        ],
       ),
     );
   }

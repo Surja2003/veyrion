@@ -114,7 +114,16 @@
     "forYourDoctor": "For your doctor",
     "unreliableTitle": "This may not be a clear skin-lesion photo",
     "unreliableBody": "The model is very unsure about this image — it doesn't clearly match any skin-lesion type, which usually means the photo isn't a close, well-lit shot of a single spot. Please don't rely on the result below. Retake with the lesion filling the frame, or check with a clinician.",
-    "reassureLowTitle": "You look low-risk"
+    "reassureLowTitle": "You look low-risk",
+    "aboutClass": "About \"{}\"",
+    "confLowTag": "LOW",
+    "confModTag": "MODERATE",
+    "confHighTag": "HIGH",
+    "confLow": "Low confidence: the model is unsure. Treat this as a nudge to get a professional opinion, not as an answer.",
+    "confModerate": "Moderate confidence. A useful signal, but confirm with a clinician.",
+    "confHigh": "Higher confidence — but confidence is not correctness. Still confirm anything concerning.",
+    "mockBody": "MOCK RESULT — the server has no trained weights loaded, so these numbers are placeholders for testing the app, not real predictions.",
+    "safetyBody": "This model correctly flags only about {}% of true melanomas — its most common mistake is calling a melanoma a harmless mole. A low melanoma score (here {}%) does NOT rule out cancer. If a spot is new, changing, or worrying you, see a dermatologist regardless of this result."
   },
   "chat": {
     "title": "DARM Assistant",

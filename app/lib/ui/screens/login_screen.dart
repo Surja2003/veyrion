@@ -59,7 +59,8 @@ class _LoginScreenState extends State<LoginScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      body: SafeArea(
+      body: AmbientBackground(
+        child: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
@@ -174,52 +175,50 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: CircularProgressIndicator(
                                   strokeWidth: 2, color: Colors.white))
                           : const Icon(Icons.login),
-                      label: Text(_loading ? 'Signing in…' : 'Sign in'),
+                      label: Text(_loading
+                          ? 'login.signingIn'.tr()
+                          : 'login.signIn'.tr()),
                     ),
                     const SizedBox(height: 20),
 
                     // Role explainer + demo creds
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(14),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.badge_outlined,
-                                    size: 18, color: theme.colorScheme.primary),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text('Two roles — same full results',
-                                      style: theme.textTheme.titleSmall
-                                          ?.copyWith(
-                                              fontWeight: FontWeight.w700)),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Patients and clinics both see every number. The patient view '
-                              'adds plain-language guidance so results are clear without alarm; '
-                              'the clinic view adds clinical caveats and record fields.',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant),
-                            ),
-                            const Divider(height: 22),
-                            _DemoRow(
-                              label: 'Patient',
-                              creds: 'patient / patient123',
-                              onUse: () => _fill('patient', 'patient123'),
-                            ),
-                            const SizedBox(height: 8),
-                            _DemoRow(
-                              label: 'Clinic',
-                              creds: 'clinic / clinic123',
-                              onUse: () => _fill('clinic', 'clinic123'),
-                            ),
-                          ],
-                        ),
+                    GlassCard(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.badge_outlined,
+                                  size: 18, color: theme.colorScheme.primary),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text('login.rolesTitle'.tr(),
+                                    style: theme.textTheme.titleSmall
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.w700)),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'login.rolesBody'.tr(),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant),
+                          ),
+                          const Divider(height: 22),
+                          _DemoRow(
+                            label: 'role.patient'.tr(),
+                            creds: 'patient / patient123',
+                            onUse: () => _fill('patient', 'patient123'),
+                          ),
+                          const SizedBox(height: 8),
+                          _DemoRow(
+                            label: 'role.clinic'.tr(),
+                            creds: 'clinic / clinic123',
+                            onUse: () => _fill('clinic', 'clinic123'),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -235,7 +234,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           icon:
                               const Icon(Icons.description_outlined, size: 18),
-                          label: const Text('Terms & Conditions'),
+                          label: Text('settings.terms'.tr()),
                         ),
                         TextButton.icon(
                           onPressed: () => Navigator.of(context).push(
@@ -243,7 +242,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 builder: (_) => const SettingsScreen()),
                           ),
                           icon: const Icon(Icons.settings, size: 18),
-                          label: const Text('Server settings'),
+                          label: Text('login.serverSettings'.tr()),
                         ),
                       ],
                     ),
@@ -252,6 +251,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
+        ),
         ),
       ),
     );
@@ -277,8 +277,8 @@ class _BackendStatus extends StatelessWidget {
         Flexible(
           child: Text(
             online
-                ? 'Server online${app.mockMode ? ' · mock mode (no weights loaded)' : ''}'
-                : 'Server offline — check Server settings',
+                ? '${'login.serverOnline'.tr()}${app.mockMode ? ' · ${'login.serverMock'.tr()}' : ''}'
+                : 'login.serverOffline'.tr(),
             style:
                 Theme.of(context).textTheme.labelMedium?.copyWith(color: color),
             textAlign: TextAlign.center,
@@ -306,7 +306,7 @@ class _DemoRow extends StatelessWidget {
         Expanded(
             child:
                 Text(creds, style: const TextStyle(fontFamily: 'monospace'))),
-        TextButton(onPressed: onUse, child: const Text('Use')),
+        TextButton(onPressed: onUse, child: Text('common.use'.tr())),
       ],
     );
   }
