@@ -121,7 +121,7 @@ CLASS_INFO = {
             "very often treatable. The right next step is simple and not an emergency: book a dermatologist to look at it in person."
         ),
         "clinician_note": (
-            "Val recall 0.689 (precision 0.781) - this model MISSES roughly 1 in 3 true melanomas, mostly to NV. "
+            "Val recall 0.689 (precision 0.763) - this model MISSES roughly 1 in 3 true melanomas, mostly to NV. "
             "Treat a negative melanoma result with caution; correlate with dermoscopy/history and consider biopsy on clinical suspicion."
         ),
         "abcde": True,
@@ -138,7 +138,7 @@ CLASS_INFO = {
             "They do not turn into cancer. They can be removed for comfort or cosmetic reasons if they bother you."
         ),
         "clinician_note": (
-            "Val F1 0.829. Note 17 BKL were predicted as MEL by this model - BKL/MEL overlap is a known confuser. "
+            "Val F1 0.847. BKL/MEL overlap is a known confuser. "
             "Dermoscopic correlation recommended for pigmented BKL."
         ),
         "abcde": False,
@@ -156,7 +156,7 @@ CLASS_INFO = {
             "but it is not an emergency. Please book a dermatologist appointment."
         ),
         "clinician_note": (
-            "Val recall 0.891 / precision 0.797 (F1 0.841). Generally well separated. Confirm and treat per local pathway."
+            "Val recall 0.900 / precision 0.811 (F1 0.853). Generally well separated. Confirm and treat per local pathway."
         ),
         "abcde": False,
     },
@@ -173,7 +173,7 @@ CLASS_INFO = {
             "Book a routine dermatology appointment, and protect the area from the sun."
         ),
         "clinician_note": (
-            "Val F1 0.724 (lowest of the malignant/pre-malignant group). Confusers: 7 AKIEC -> BKL. "
+            "Val F1 0.746 (lowest of the malignant/pre-malignant group). AKIEC/BKL is a known confuser. "
             "Field cancerisation context; manage per AK pathway."
         ),
         "abcde": False,
@@ -190,7 +190,7 @@ CLASS_INFO = {
             "They are benign and usually need no treatment."
         ),
         "clinician_note": (
-            "Val F1 0.822 but small support (n=36) - estimate is unstable. Usually clinically obvious."
+            "Val F1 0.901 but small support (n=36) - estimate is unstable. Usually clinically obvious."
         ),
         "abcde": False,
     },
@@ -206,7 +206,7 @@ CLASS_INFO = {
             "They are benign and usually left alone unless they are uncomfortable."
         ),
         "clinician_note": (
-            "Val precision 0.950 / recall 0.760 (F1 0.844) on tiny support (n=25). High precision, unstable estimate."
+            "Val precision 0.955 / recall 0.840 (F1 0.894) on tiny support (n=25). High precision, unstable estimate."
         ),
         "abcde": False,
     },
@@ -214,14 +214,14 @@ CLASS_INFO = {
 
 # Model performance context (paper Table II) - surfaced honestly in the app.
 MODEL_CARD = {
-    "dataset": "HAM10000 (lesion-grouped validation, 2025 samples)",
+    "dataset": "HAM10000 + ISIC 2019 (train); lesion-grouped HAM10000 validation (2025 samples)",
     "config": "C2 (image + metadata), MixUp disabled",
-    "accuracy": 0.9062,
-    "macro_f1": 0.8257,
+    "accuracy": 0.9037,
+    "macro_f1": 0.8456,
     "melanoma_recall": 0.6891,
     "per_class_f1": {
-        "nv": 0.9593, "mel": 0.7321, "bkl": 0.8288, "bcc": 0.8412,
-        "akiec": 0.7238, "vasc": 0.8219, "df": 0.8444,
+        "nv": 0.9540, "mel": 0.7241, "bkl": 0.8474, "bcc": 0.8534,
+        "akiec": 0.7455, "vasc": 0.9014, "df": 0.8936,
     },
     "key_caveat": (
         "This is a controlled-benchmark model, not a clinically validated device. "

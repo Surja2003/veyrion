@@ -14,8 +14,8 @@ class AppConfig {
   static const String appTagline = 'Precision in Every Insight';
 
   /// Model context surfaced honestly in the UI.
-  static const double modelAccuracy = 0.9062;
-  static const double modelMacroF1 = 0.8257;
+  static const double modelAccuracy = 0.9037;
+  static const double modelMacroF1 = 0.8456;
   static const double modelMelanomaRecall = 0.6891;
 }
 

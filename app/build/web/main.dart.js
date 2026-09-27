@@ -52054,10 +52054,10 @@ r=A.a0(e,i,i,i,r==null?i:r.pG(1.4),i,i)
 q=A.Y("learn.statAccuracy",i)
 p=g==null
 o=p?i:g.c
-q=j.DK(a,q,B.c.ar((o==null?0.9062:o)*100,1)+"%")
+q=j.DK(a,q,B.c.ar((o==null?0.9037:o)*100,1)+"%")
 o=A.Y("learn.statMacroF1",i)
 n=p?i:g.d
-o=j.DK(a,o,B.c.ar(n==null?0.8257:n,4))
+o=j.DK(a,o,B.c.ar(n==null?0.8456:n,4))
 n=A.Y("learn.statMelRecall",i)
 m=p?i:g.e
 n=j.DK(a,n,B.c.ar((m==null?0.6891:m)*100,1)+"%")
@@ -53006,7 +53006,7 @@ A.aJu.prototype={
 $0(){return B.d.gau(this.a.c.gAD())},
 $S:167}
 A.a2s.prototype={
-J(a){var s=this,r=null,q=A.v(a),p=A.Y("result.clinicalContext",r),o=s.CY(q,"Model",s.c.b+" \xb7 5-backbone fusion + metadata"),n=s.CY(q,"Validation accuracy",B.c.ar(90.62,1)+"% (lesion-grouped)"),m=s.CY(q,"Macro-F1",B.c.ar(0.8257,4)),l=s.CY(q,"Melanoma recall",B.c.ar(68.91000000000001,1)+"% \u2014 under-sensitive"),k=q.ok.Q
+J(a){var s=this,r=null,q=A.v(a),p=A.Y("result.clinicalContext",r),o=s.CY(q,"Model",s.c.b+" \xb7 5-backbone fusion + metadata"),n=s.CY(q,"Validation accuracy",B.c.ar(90.36999999999999,1)+"% (lesion-grouped)"),m=s.CY(q,"Macro-F1",B.c.ar(0.8456,4)),l=s.CY(q,"Melanoma recall",B.c.ar(68.91000000000001,1)+"% \u2014 under-sensitive"),k=q.ok.Q
 return A.f1(A.ce(A.b([new A.fs(p,r),o,n,m,l,B.aX,A.a0("Dominant confusions in validation: MEL\u2192NV (53), BKL\u2192MEL (17), AKIEC\u2192BKL (7). Correlate with dermoscopy, history and ABCDE; low melanoma probability is not a rule-out. Consider biopsy on clinical suspicion irrespective of model output.",r,r,r,k==null?r:k.pG(1.4),r,r)],t.p),B.a5,B.p,B.x),B.bx,22,r,0)},
 CY(a,b,c){var s=null,r=a.ok.Q,q=A.d9(A.a0(b,s,s,s,r,s,s),s,150)
 return new A.b7(B.mU,A.c2(A.b([q,A.cH(A.a0(c,s,s,s,r==null?s:r.hi(B.e8),s,s),1)],t.p),B.a5,B.p,B.x,0,s),s)}}
