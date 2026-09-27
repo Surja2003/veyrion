@@ -159,7 +159,11 @@
     "translateMedical": "Translate medical text too",
     "translateMedicalNote": "Uses the AI assistant to translate lesion explanations. The English original is always available.",
     "serverUrl": "Server URL",
-    "saveUrl": "Save URL"
+    "saveUrl": "Save URL",
+    "signedInAs": "Signed in as",
+    "about": "About",
+    "version": "Version 1.0.0",
+    "aboutBody": "A decision-support tool for the multi-backbone skin-lesion model. Not a medical device."
   },
   "disclaimer": {
     "short": "Veyrion is a decision-support tool — not a medical diagnosis. Always consult a qualified clinician.",

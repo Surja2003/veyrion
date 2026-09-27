@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../core/config.dart';
 import '../../state/scan_controller.dart';
 import '../widgets/common.dart';
+import '../widgets/glass.dart';
 import 'camera_screen.dart';
 import 'crop_screen.dart';
 import 'metadata_screen.dart';
@@ -174,28 +175,25 @@ class _TipsCard extends StatelessWidget {
       'scan.tip3'.tr(),
       'scan.tip4'.tr(),
     ];
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SectionHeader('scan.tipsTitle'.tr()),
-            ...tips.map((t) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.check_circle_outline,
-                          size: 18,
-                          color: Theme.of(context).colorScheme.primary),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(t)),
-                    ],
-                  ),
-                )),
-          ],
-        ),
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionHeader('scan.tipsTitle'.tr()),
+          ...tips.map((t) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.check_circle_outline,
+                        size: 18,
+                        color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(t)),
+                  ],
+                ),
+              )),
+        ],
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/config.dart';
 import '../../state/app_controller.dart';
 import '../widgets/common.dart';
+import '../widgets/glass.dart';
 import 'terms_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -36,88 +37,83 @@ class _SettingsScreenState extends State<SettingsScreen> {
             if (widget.embedded) const SizedBox(height: 16),
 
             // Language selector — live in-app switch (English / Hindi / Bengali).
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.translate, size: 20),
-                        const SizedBox(width: 8),
-                        SectionHeader('settings.language'.tr()),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Wrap(
-                      spacing: 8,
-                      children: [
-                        _LangChip(
-                            code: 'en', label: 'settings.languageEnglish'.tr()),
-                        _LangChip(
-                            code: 'hi', label: 'settings.languageHindi'.tr()),
-                        _LangChip(
-                            code: 'bn', label: 'settings.languageBengali'.tr()),
-                      ],
-                    ),
-                  ],
-                ),
+            GlassCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.translate, size: 20),
+                      const SizedBox(width: 8),
+                      SectionHeader('settings.language'.tr()),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      _LangChip(
+                          code: 'en', label: 'settings.languageEnglish'.tr()),
+                      _LangChip(
+                          code: 'hi', label: 'settings.languageHindi'.tr()),
+                      _LangChip(
+                          code: 'bn', label: 'settings.languageBengali'.tr()),
+                    ],
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 12),
 
             // Appearance (theme) selector.
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.contrast, size: 20),
-                        const SizedBox(width: 8),
-                        SectionHeader('settings.appearance'.tr()),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Wrap(
-                      spacing: 8,
-                      children: [
-                        _ThemeChip(
-                            mode: ThemeMode.system,
-                            label: 'settings.themeSystem'.tr(),
-                            icon: Icons.brightness_auto),
-                        _ThemeChip(
-                            mode: ThemeMode.light,
-                            label: 'settings.themeLight'.tr(),
-                            icon: Icons.light_mode),
-                        _ThemeChip(
-                            mode: ThemeMode.dark,
-                            label: 'settings.themeDark'.tr(),
-                            icon: Icons.dark_mode),
-                      ],
-                    ),
-                  ],
-                ),
+            GlassCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.contrast, size: 20),
+                      const SizedBox(width: 8),
+                      SectionHeader('settings.appearance'.tr()),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      _ThemeChip(
+                          mode: ThemeMode.system,
+                          label: 'settings.themeSystem'.tr(),
+                          icon: Icons.brightness_auto),
+                      _ThemeChip(
+                          mode: ThemeMode.light,
+                          label: 'settings.themeLight'.tr(),
+                          icon: Icons.light_mode),
+                      _ThemeChip(
+                          mode: ThemeMode.dark,
+                          label: 'settings.themeDark'.tr(),
+                          icon: Icons.dark_mode),
+                    ],
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 12),
 
-            Card(
+            GlassCard(
+              padding: EdgeInsets.zero,
               child: Column(
                 children: [
                   ListTile(
                     leading: const Icon(Icons.person_outline),
-                    title: const Text('Signed in as'),
+                    title: Text('settings.signedInAs'.tr()),
                     subtitle: Text(
-                        '${app.displayName} · ${app.isClinic ? 'Clinic' : 'Patient'}'),
+                        '${app.displayName} · ${app.isClinic ? 'role.clinic'.tr() : 'role.patient'.tr()}'),
                   ),
                   const Divider(height: 1),
                   ListTile(
                     leading: const Icon(Icons.description_outlined),
-                    title: const Text('Terms & Conditions'),
+                    title: Text('settings.terms'.tr()),
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => const TermsScreen()),
                     ),
@@ -125,7 +121,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const Divider(height: 1),
                   ListTile(
                     leading: const Icon(Icons.logout),
-                    title: const Text('Sign out'),
+                    title: Text('appbar.signOut'.tr()),
                     onTap: () => app.logout(),
                   ),
                 ],
@@ -133,36 +129,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 12),
 
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SectionHeader('About'),
-                    Text('${AppConfig.appName} — ${AppConfig.appTagline}'),
-                    const Text('Version 1.0.0'),
-                    const SizedBox(height: 8),
-                    Text(
-                      'A decision-support client for the multi-backbone skin-lesion fusion model. '
-                      'Not a medical device.',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    const SizedBox(height: 6),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: TextButton.icon(
-                        style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (_) => const TermsScreen()),
-                        ),
-                        icon: const Icon(Icons.description_outlined, size: 18),
-                        label: Text('settings.terms'.tr()),
+            GlassCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SectionHeader('settings.about'.tr()),
+                  Text('${AppConfig.appName} — ${AppConfig.appTagline}'),
+                  Text('settings.version'.tr()),
+                  const SizedBox(height: 8),
+                  Text(
+                    'settings.aboutBody'.tr(),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 6),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton.icon(
+                      style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const TermsScreen()),
                       ),
+                      icon: const Icon(Icons.description_outlined, size: 18),
+                      label: Text('settings.terms'.tr()),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 12),
